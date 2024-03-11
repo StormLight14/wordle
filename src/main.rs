@@ -3,18 +3,19 @@ use rand::seq::SliceRandom;
 use std::fs::read;
 use std::io;
 
-fn get_word() -> Result<String, Box<dyn std::error::Error>> {
+fn get_words() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let mut words: Vec<String> = Vec::new();
     let words_file = String::from_utf8(read("words.txt")?)?;
     for word in words_file.split("\n") {
         words.push(word.to_string());
     }
 
-    Ok(words.choose(&mut rand::thread_rng()).unwrap().clone())
+    Ok(words)
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let word = get_word()?;
+    let words = get_words()?;
+    let word = words.choose(&mut rand::thread_rng()).unwrap();
 
     loop {
         let mut user_input = String::new();
@@ -26,6 +27,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         if user_input.len() != 5 {
             println!("Word must be 5 letters long.");
+            continue;
+        }
+        if words.contains(&user_input) == false {
+            println!("That word is not in the word list.");
             continue;
         }
 
@@ -44,7 +49,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         print!("\n");
 
-        if user_input == word {
+        if &user_input == word {
             break;
         }
     }
