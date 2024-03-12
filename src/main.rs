@@ -16,8 +16,11 @@ fn get_words() -> Result<Vec<String>, Box<dyn std::error::Error>> {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let words = get_words()?;
     let word = words.choose(&mut rand::thread_rng()).unwrap();
+    let mut attempts_left = 6;
 
-    loop {
+    println!("Guess the 5 letter word. You have 6 attempts.");
+
+    while attempts_left > 0 {
         let mut user_input = String::new();
         io::stdin()
             .read_line(&mut user_input)
@@ -33,6 +36,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("That word is not in the word list.");
             continue;
         }
+
+        attempts_left -= 1;
 
         for i in 0..word.len() {
             let word_letter = word[i..=i].to_string();
@@ -50,8 +55,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         print!("\n");
 
         if &user_input == word {
-            break;
+            println!("{}", "You figured out the word!".green());
+            return Ok(());
+        }
+        if attempts_left > 0 {
+            println!(
+                "You have {} attempts left.",
+                format!("{}", attempts_left).bright_blue()
+            )
+        } else {
+            println!("You have no attempts left.");
         }
     }
+
+    println!("{}, the word was {}.", "Game Over".red(), word.green());
+
     Ok(())
 }
